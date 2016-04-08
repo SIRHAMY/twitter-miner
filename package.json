@@ -1,0 +1,23 @@
+{
+  "name": "twitter-miner",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SIRHAMY/twitter-miner.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SIRHAMY/twitter-miner/issues"
+  },
+  "homepage": "https://github.com/SIRHAMY/twitter-miner#readme",
+  "dependencies": {
+    "twitter": "^1.2.5"
+  }
+}
