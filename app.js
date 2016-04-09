@@ -22,6 +22,7 @@ MongoClient.connect(url, function(err, db) {
 	
 	if(process.env.MINE_PROCESS.toLowerCase() == 'followers') {
 		mineTwitterFollowers(db, function() {
+			console.log("Closing db");
 			db.close();
 		});
 	}
@@ -39,7 +40,8 @@ var mineTwitterFollowers = function(db, callback) {
 			// If last page reached, stop mining
 			if( insertResult.nextCursor != null && parseInt(insertResult.nextCursor) == 0 )
 				callback();
-			else mineTwitterFollowers(db, callback);
+			//else mineTwitterFollowers(db, callback);
+			//HAMYChange: Add for mining loop
 		});
 	});
 }
@@ -49,21 +51,26 @@ var fetchTwitterFollowers = function(db, callback) {
 
 	var collection = db.collection('followers');
 
-	//collection.find().sort({_id: -1}).limit(1, function(error, cursor) {
+	var cursor = collection.find().sort( {_id: -1}).limit(1);
+	//function(error, cursor) {
 
-	//	if(error) console.log(error);
+		//if(error) console.log(error);
 
-	//	console.log("This is the last cursor I found");
-	//	console.log(cursor);
+		console.log("This is the last cursor I found");
+		console.log(cursor);
 
-	//	cursor.toArray( function(error, data) {
+		cursor.toArray( function(error, data) {
 
-	//		if(error) console.log(error);
+			if(error) console.log(error);
 
-	//		console.log("This is the piece of data I got");
-	//		console.log(data);
+			console.log("This is the piece of data I got");
+			console.log(data);
 
-			twitClient.get('followers/ids', {screen_name: process.env.TWITTER_HANDLE}, function(error, tweets, response){
+			var nextCursor = -1;
+
+			if(data[0] != null) nextCursor = data[0].nextCursor;
+
+			twitClient.get('followers/ids', {screen_name: process.env.TWITTER_HANDLE, cursor: nextCursor}, function(error, tweets, response){
 
 			  if(error) {
 			  	console.log("ERROR: fetchTwitterFollowers");
@@ -73,21 +80,21 @@ var fetchTwitterFollowers = function(db, callback) {
 			  		console.log(error);
 			  		setTimeout(function() {
 			  			fetchTwitterFollowers(db, callback);
-			  		}, 120000 );
+			  		}, 180000 ); //Waits 3 mins
 			  		console.log("Set timeout to retry");
 			  	} else {
 			  		console.log(error);
 			  	}
 			  } else {
 		  			console.log(error);
-				  console.log(tweets);  // The payload 
+				  //console.log(tweets);  // The payload 
 				  //console.log(response);  // Raw response object.
 				  callback(tweets); //Move this somewhere useful 
 			  }
 
 			});
 
-	//	});
+		});
 
 	//});
 
@@ -104,15 +111,16 @@ var insertTwitterFollowers = function(db, toInsert, callback) {
 	    	prevCursor: toInsert.previous_cursor, 
 	    	nextCursor: toInsert.next_cursor, 
 	    	followers: toInsert.ids,
-	    	run: 'bitchboi'
+	    	myTest: 'bitchboi2'
 	    }
 	  ], function(err, result) {
 	    if(err) {
 	    	console.log("Issue");
 	    	console.log(err.toString());
+	    } else {
+	    	//console.log(result);
+	    	console.log("Insertion Successful");
 	    }
-	    console.log(result);
-	    console.log("Test insert");
 	    callback(result);
 	    //callback("Rezz");
 	  });
