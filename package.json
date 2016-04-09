@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/SIRHAMY/twitter-miner#readme",
   "dependencies": {
+    "mongodb": "^2.1.16",
     "twitter": "^1.2.5"
   }
 }
