@@ -29,20 +29,26 @@ MongoClient.connect(url, function(err, db) {
 });
 
 var mineTwitterFollowers = function(db, callback) {
-	console.log("Mining followers...");
+	console.log("Mining " + process.env.TWITTER_HANDLE + "'s followers...");
 
 	fetchTwitterFollowers(db, function(fetchResult) {
-		insertTwitterFollowers(db, fetchResult, function(insertResult) {
-			console.log("In insertTwitterFollowers");
-			console.log("Result obj: ");
-			console.log(insertResult);
+		if(fetchResult !== 'OPEND') {
+			insertTwitterFollowers(db, fetchResult, function(insertResult) {
+				console.log("In insertTwitterFollowers");
+				console.log("Result obj: ");
+				console.log(insertResult);
 
-			// If last page reached, stop mining
-			if( insertResult.nextCursor != null && parseInt(insertResult.nextCursor) == 0 )
-				callback();
-			//else mineTwitterFollowers(db, callback);
-			//HAMYChange: Add for mining loop
-		});
+				// If last page reached, stop mining
+				if( insertResult != null && insertResult.ops[0].nextCursor != null && parseInt(insertResult.nextCursor.ops[0].nextCursor) == 0 ) {
+					console.log("OPERATION ENDED: Last page reached");
+					callback();
+				}
+				else mineTwitterFollowers(db, callback);
+				//HAMYChange: Add for mining loop
+			});
+		} else {
+			callback();
+		}
 	});
 }
 
@@ -56,43 +62,52 @@ var fetchTwitterFollowers = function(db, callback) {
 
 		//if(error) console.log(error);
 
-		console.log("This is the last cursor I found");
-		console.log(cursor);
+		//console.log("This is the last cursor I found");
+		//console.log(cursor);
 
 		cursor.toArray( function(error, data) {
 
 			if(error) console.log(error);
 
-			console.log("This is the piece of data I got");
-			console.log(data);
+			//console.log("This is the piece of data I got");
+			//console.log(data);
 
 			var nextCursor = -1;
 
 			if(data[0] != null) nextCursor = data[0].nextCursor;
 
-			twitClient.get('followers/ids', {screen_name: process.env.TWITTER_HANDLE, cursor: nextCursor}, function(error, tweets, response){
+			console.log("CurrentCursor = " + nextCursor);
 
-			  if(error) {
-			  	console.log("ERROR: fetchTwitterFollowers");
+			if(nextCursor==0) {
+				console.log("OPERATION ENDED: Follower-mining complete in given collection");
+				callback('OPEND');
+			} else {
 
-			  	if(error[0].code == 88) {
-			  		console.log("Rate limit hit: followers/ids");
-			  		console.log(error);
-			  		setTimeout(function() {
-			  			fetchTwitterFollowers(db, callback);
-			  		}, 180000 ); //Waits 3 mins
-			  		console.log("Set timeout to retry");
-			  	} else {
-			  		console.log(error);
-			  	}
-			  } else {
-		  			console.log(error);
-				  //console.log(tweets);  // The payload 
-				  //console.log(response);  // Raw response object.
-				  callback(tweets); //Move this somewhere useful 
-			  }
+				twitClient.get('followers/ids', {screen_name: process.env.TWITTER_HANDLE, cursor: nextCursor}, function(error, tweets, response){
 
-			});
+				  if(error) {
+				  	console.log("ERROR: fetchTwitterFollowers");
+
+				  	if(error[0].code == 88) {
+				  		console.log("Rate limit hit: followers/ids");
+				  		console.log(error);
+				  		setTimeout(function() {
+				  			fetchTwitterFollowers(db, callback);
+				  		}, 180000 ); //Waits 3 mins
+				  		console.log("Set timeout to retry");
+				  	} else {
+				  		console.log(error);
+				  	}
+				  } else {
+			  			console.log(error);
+					  //console.log(tweets);  // The payload 
+					  //console.log(response);  // Raw response object.
+					  callback(tweets); //Move this somewhere useful 
+				  }
+
+				});
+
+			}
 
 		});
 
