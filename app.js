@@ -38,12 +38,13 @@ var mineTwitterFollowers = function(db, callback) {
 				console.log("Result obj: ");
 				console.log(insertResult);
 
+				//TODO: Figure out how to access ops in insertResult
 				// If last page reached, stop mining
-				if( insertResult != null && insertResult.ops[0].nextCursor != null && parseInt(insertResult.nextCursor.ops[0].nextCursor) == 0 ) {
-					console.log("OPERATION ENDED: Last page reached");
-					callback();
-				}
-				else mineTwitterFollowers(db, callback);
+				//if( insertResult != null && insertResult.ops[0].nextCursor != null && parseInt(insertResult.nextCursor.ops[0].nextCursor) == 0 ) {
+				//	console.log("OPERATION ENDED: Last page reached");
+				//	callback();
+				//}
+				mineTwitterFollowers(db, callback);
 				//HAMYChange: Add for mining loop
 			});
 		} else {
