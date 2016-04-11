@@ -25,8 +25,15 @@ MongoClient.connect(url, function(err, db) {
 			console.log("Closing db");
 			db.close();
 		});
+	} else if(process.env.MINE_PROCESS.toLowerCase() == "feeds") {
+		mineFollowerFeeds(db, function() {
+			console.log("Closing db");
+			db.close();
+		})
 	}
 });
+
+//*****Follower Mining*****
 
 var mineTwitterFollowers = function(db, callback) {
 	console.log("Mining " + process.env.TWITTER_HANDLE + "'s followers...");
@@ -59,60 +66,49 @@ var fetchTwitterFollowers = function(db, callback) {
 	var collection = db.collection('followers');
 
 	var cursor = collection.find().sort( {_id: -1}).limit(1);
-	//function(error, cursor) {
 
-		//if(error) console.log(error);
+	cursor.toArray( function(error, data) {
 
-		//console.log("This is the last cursor I found");
-		//console.log(cursor);
+		if(error) console.log(error);
 
-		cursor.toArray( function(error, data) {
+		var nextCursor = -1;
 
-			if(error) console.log(error);
+		if(data[0] != null) nextCursor = data[0].nextCursor;
 
-			//console.log("This is the piece of data I got");
-			//console.log(data);
+		console.log("CurrentCursor = " + nextCursor);
 
-			var nextCursor = -1;
+		if(nextCursor==0) {
+			console.log("OPERATION ENDED: Follower-mining complete in given collection");
+			callback('OPEND');
+		} else {
 
-			if(data[0] != null) nextCursor = data[0].nextCursor;
+			twitClient.get('followers/ids', {screen_name: process.env.TWITTER_HANDLE, cursor: nextCursor}, function(error, tweets, response){
 
-			console.log("CurrentCursor = " + nextCursor);
+			  if(error) {
+			  	console.log("ERROR: fetchTwitterFollowers");
 
-			if(nextCursor==0) {
-				console.log("OPERATION ENDED: Follower-mining complete in given collection");
-				callback('OPEND');
-			} else {
+			  	if(error[0].code == 88) {
+			  		console.log("Rate limit hit: followers/ids");
+			  		console.log(error);
+			  		setTimeout(function() {
+			  			fetchTwitterFollowers(db, callback);
+			  		}, 180000 ); //Waits 3 mins
+			  		console.log("Set timeout to retry");
+			  	} else {
+			  		console.log(error);
+			  	}
+			  } else {
+		  			console.log(error);
+				  //console.log(tweets);  // The payload 
+				  //console.log(response);  // Raw response object.
+				  callback(tweets); //Move this somewhere useful 
+			  }
 
-				twitClient.get('followers/ids', {screen_name: process.env.TWITTER_HANDLE, cursor: nextCursor}, function(error, tweets, response){
+			});
 
-				  if(error) {
-				  	console.log("ERROR: fetchTwitterFollowers");
+		}
 
-				  	if(error[0].code == 88) {
-				  		console.log("Rate limit hit: followers/ids");
-				  		console.log(error);
-				  		setTimeout(function() {
-				  			fetchTwitterFollowers(db, callback);
-				  		}, 180000 ); //Waits 3 mins
-				  		console.log("Set timeout to retry");
-				  	} else {
-				  		console.log(error);
-				  	}
-				  } else {
-			  			console.log(error);
-					  //console.log(tweets);  // The payload 
-					  //console.log(response);  // Raw response object.
-					  callback(tweets); //Move this somewhere useful 
-				  }
-
-				});
-
-			}
-
-		});
-
-	//});
+	});
 
 }
 
@@ -141,6 +137,17 @@ var insertTwitterFollowers = function(db, toInsert, callback) {
 	    //callback("Rezz");
 	  });
 }
+
+//*****End Follower Mining*****
+
+//****Follower Feed Mining*****
+
+var mineFollowerFeeds = function(db, callback) {
+	console.log("Mining Follower feeds...");
+
+	callback();
+}
+
 
 /*
 client.get('followers/list', function(error, tweets, response){
