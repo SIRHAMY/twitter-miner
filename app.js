@@ -26,7 +26,7 @@ MongoClient.connect(url, function(err, db) {
 			db.close();
 		});
 	} else if(process.env.MINE_PROCESS.toLowerCase() == "feeds") {
-		mineFollowerFeeds(db, function() {
+		mineUserFeeds(db, function() {
 			console.log("Closing db");
 			db.close();
 		})
@@ -142,12 +142,49 @@ var insertTwitterFollowers = function(db, toInsert, callback) {
 
 //****Follower Feed Mining*****
 
-var mineFollowerFeeds = function(db, callback) {
-	console.log("Mining Follower feeds...");
+var mineUserFeeds = function(db, callback) {
+	console.log("Mining User feeds...");
 
-	callback();
+	var userIDs = db.collection('followers');
+
+	//var fake = db.collection('fake');
+
+	
+	userIDs.count(function(err, count) {
+		if(err) console.log(err);
+		console.log('Debug: db.followers.count() = ' );
+		console.log(count);
+
+		//If 0, doesn't exist - or no data
+		if(count == 0) {
+			console.log("OPERATION ENDED: No Follower IDs found in " + 
+				process.env.TWITTER_HANDLE + ".followers");
+			console.log("    Suggested Action: Ensure collection exists/is populated");
+			callback();
+		} else {
+
+		}
+	});
+
+	/* Returned 0 if nothing there, no collection
+	fake.count(function(err, response) {
+		if(err) console.log(err);
+		console.log('Debug: Fake.count');
+		console.log(response);
+	});
+	*/
+
 }
 
+var fetchUserFeed = function(db, callback) {
+
+}
+
+var insertUserFeed = function(db, toInsert, callback) {
+
+}
+
+//*****End Feed Mining*****
 
 /*
 client.get('followers/list', function(error, tweets, response){
