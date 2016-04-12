@@ -112,7 +112,7 @@ class FeedScraper():
 		print("Fetching feed...")
 
 		try:
-			userFeed = self.twitAPI.user_timeline(user_id=str(int(twitterID)) )
+			userFeed = self.twitAPI.user_timeline(user_id=str(int(twitterID)), exclude_replies="true", include_rts="false" )
 
 			self.insertFeed(twitterID, userFeed, userPageID)
 		except Exception as err:
@@ -141,13 +141,13 @@ class FeedScraper():
 					})
 
 			#HAMYChange
-			print("userID: " + str(userFeed[0]['id']) )
-			print("userPageID: " + str(userPageID) )
-			print("A tweet: ")
-			print userFeed[1]
+			#print("userID: " + str(userFeed[0]['id']) )
+			#print("userPageID: " + str(userPageID) )
 		except Exception as err:
 			print "ERROR: Problem with insertion"
-			print str(err)
+			error = str(err)
+			if("list index out of range" in error):
+				print("User had no tweets fitting the search criteria")
 		else:
 			print("Successfully inserted: " + str(userFeed[0]['id']) )
 
