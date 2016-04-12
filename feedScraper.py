@@ -70,7 +70,7 @@ class FeedScraper():
 			if(lastMiningIndex == -1):
 				mineCursor = self.mongoUserIDs.find().sort( [ ["_id", 1] ] )
 			else:
-				mineCursor = self.mongoUserIDs.find( {'_id': {'$lte': lastMiningIndex } }).sort( [ ["_id", 1] ] )
+				mineCursor = self.mongoUserIDs.find( {'_id': {'$gte': lastMiningIndex } }).sort( [ ["_id", 1] ] )
 
 			newProcess = (lastTwitterID == -1)
 
@@ -81,14 +81,27 @@ class FeedScraper():
 			print lastMiningIndex
 
 			for idStash in mineCursor:
+				print "Iterate cursor"
+
 				twitterIDs = idStash['followers']
 				for twitterID in twitterIDs:
+					print("Looking for twitterID")
 
 					if(not newProcess):
+						print(int(twitterID))
+						#print( int(lastTwitterID) )
 						if( int(twitterID) == int(lastTwitterID) ): 
+							print("Found last Twitter ID")
 							newProcess = True
 					else:
 						self.fetchFeed(int(twitterID), idStash['_id'])
+
+				#HAmYChange
+				print lastTwitterID in twitterIDs
+
+			#HAMYChange
+			print mineCursor.count()
+
 		except Exception as err:
 			print "ERROR: Issue in mine process"
 			print str(err)
@@ -101,7 +114,7 @@ class FeedScraper():
 		try:
 			userFeed = self.twitAPI.user_timeline(user_id=str(int(twitterID)) )
 
-			self.insertFeed(userFeed, userPageID)
+			self.insertFeed(twitterID, userFeed, userPageID)
 		except Exception as err:
 			if('88' in str(err)):
 				print("Mining Suspended: Reached Twitter rate limit")
@@ -114,14 +127,14 @@ class FeedScraper():
 		else:
 			print("Worked")
 
-	def insertFeed(self, userFeed, userPageID):
+	def insertFeed(self, twitterID, userFeed, userPageID):
 		print("Inserting feed...")
 
 		try:
 			if(userFeed[1] is not None):
 				self.mongoUserFeeds.insert_one(
 					{
-						"twitterID": userFeed[0]['id'],
+						"twitterID": twitterID,
 						"userPageID": userPageID,
 						"userInfo": userFeed[0],
 						"feed": userFeed[1:]
