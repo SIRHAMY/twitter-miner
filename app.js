@@ -146,24 +146,54 @@ var mineUserFeeds = function(db, callback) {
 	console.log("Mining User feeds...");
 
 	var userIDs = db.collection('followers');
+	var userFeeds = db.collection('feeds');
 
 	//var fake = db.collection('fake');
 
-	
-	userIDs.count(function(err, count) {
-		if(err) console.log(err);
-		console.log('Debug: db.followers.count() = ' );
-		console.log(count);
-
-		//If 0, doesn't exist - or no data
-		if(count == 0) {
-			console.log("OPERATION ENDED: No Follower IDs found in " + 
-				process.env.TWITTER_HANDLE + ".followers");
-			console.log("    Suggested Action: Ensure collection exists/is populated");
-			callback();
+	//Check if we've started mining yet or not
+	userFeeds.count(function(err, feedCount) {
+		var startIndex;
+		var lastTwitterID = -1;
+		if(feedCount == 0) {
+			startIndex = -1;
 		} else {
-
+			var lastMinedCursor = collection.find().sort( {_id: -1}).limit(1);
+			startIndex = new ObjectId(lastMinedCursor.minedPageSource); // TODO: Make sure this doesn't crap out
+			lastTwitterID = lastMinedCursor.twitterID;
 		}
+
+		console.log("StartIndex = " + startIndex );	
+
+		userIDs.count(function(err, userPages) {
+			if(err) console.log(err);
+			console.log('Debug: db.followers.count() = ' );
+			console.log(userPages);
+
+			//If 0, doesn't exist - or no data
+			if(userPages == 0) {
+				console.log("OPERATION ENDED: No Follower IDs found in " + 
+					process.env.TWITTER_HANDLE + ".followers");
+				console.log("    Suggested Action: Ensure collection exists/is populated");
+				callback();
+			} else {
+				console.log("Found follower IDs...");
+
+				if(startIndex === -1) {
+					userFeedMiner(db, userIDs.find().sort( {_id: -1}), function() {
+						console.log("UserFeedMiner returned - from scratch");
+						callback();
+					});
+				} else {
+					//Begin mine code
+					userIDs.find({_id: {$gte: { startIndex } } }, function(error, userPageCursor) {
+						console.log("Debug: userPageID: " + userPageCursor._id);
+						userFeedMiner(db, userPageCursor, function() {
+							console.log("UserFeedMiner returned");
+						});
+					});
+				}
+			}
+		});
 	});
 
 	/* Returned 0 if nothing there, no collection
@@ -176,7 +206,23 @@ var mineUserFeeds = function(db, callback) {
 
 }
 
-var fetchUserFeed = function(db, callback) {
+var userFeedMiner = function(db, userPageCursor, callback) {
+	userPageCursor.each(function(err, item) {
+		if(item == null) callback();
+
+		fetchUserFeed(twitterID, function(payload) {
+			console.log("Fetched Twitter ID: " + twitterID);
+			
+			insertUserFeed(db, payload, function() {
+				console.log("Inserted User Feed");
+			});
+
+		});
+		
+	});
+}
+
+var fetchUserFeed = function(twitterID, callback) {
 
 }
 
