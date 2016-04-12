@@ -96,11 +96,7 @@ class FeedScraper():
 					else:
 						self.fetchFeed(int(twitterID), idStash['_id'])
 
-				#HAmYChange
-				print lastTwitterID in twitterIDs
-
-			#HAMYChange
-			print mineCursor.count()
+			print("Reached end of mining cursor")
 
 		except Exception as err:
 			print "ERROR: Issue in mine process"
@@ -125,7 +121,7 @@ class FeedScraper():
 				print("ERROR: Something broke when fetching the feed")
 				print str(err)
 		else:
-			print("Worked")
+			print("Fetch sucessful.")
 
 	def insertFeed(self, twitterID, userFeed, userPageID):
 		print("Inserting feed...")
