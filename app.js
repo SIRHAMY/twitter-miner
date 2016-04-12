@@ -179,17 +179,47 @@ var mineUserFeeds = function(db, callback) {
 				console.log("Found follower IDs...");
 
 				if(startIndex === -1) {
-					userFeedMiner(db, userIDs.find().sort( {_id: -1}), function() {
-						console.log("UserFeedMiner returned - from scratch");
+					console.log("Debug: startIndex - 1");
+
+					userIDs.find().sort( {_id: -1}, function(error, userPageCursor) {
+						if(error) console.log(error);
+
+						while(userPageCursor != null) {
+							userFeedMiner(db, userPageCursor, function() {
+								console.log("UserFeedMiner returned - from scratch");
+							});
+
+							if(userPageCursor.hasNext()) {
+								userPageCursor.next();
+								continue;
+							}
+							else break;
+						}
+
 						callback();
 					});
+
 				} else {
+					console.log("Debug: startIndex ! - 1");
+
 					//Begin mine code
 					userIDs.find({_id: {$gte: { startIndex } } }, function(error, userPageCursor) {
+						if(error) console.log(error);
+
 						console.log("Debug: userPageID: " + userPageCursor._id);
-						userFeedMiner(db, userPageCursor, function() {
-							console.log("UserFeedMiner returned");
-						});
+						while(userPageCursor != null) {
+							userFeedMiner(db, userPageCursor, function() {
+								console.log("UserFeedMiner returned");
+							});
+
+							if(userPageCursor.hasNext()) {
+								userPageCursor.next();
+								continue;
+							}
+							else break;
+						}
+
+						callback();
 					});
 				}
 			}
@@ -207,7 +237,7 @@ var mineUserFeeds = function(db, callback) {
 }
 
 var userFeedMiner = function(db, userPageCursor, callback) {
-	userPageCursor.each(function(err, item) {
+	userPageCursor.toArray(function(err, item) {
 		if(item == null) callback();
 
 		fetchUserFeed(twitterID, function(payload) {
@@ -218,16 +248,16 @@ var userFeedMiner = function(db, userPageCursor, callback) {
 			});
 
 		});
-		
+
 	});
 }
 
 var fetchUserFeed = function(twitterID, callback) {
-
+	console.log("Fetching user feed...");
 }
 
 var insertUserFeed = function(db, toInsert, callback) {
-
+	console.log("Inserting user feed...");
 }
 
 //*****End Feed Mining*****
