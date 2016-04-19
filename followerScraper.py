@@ -21,6 +21,7 @@ class FollowerScraper():
 			print("Searching for existing mining operation...")
 			with open(env.TWITTER_HANDLE + "Followers.json", 'rb') as followers:
 				print("Existing mining operation found.")
+				line = None
 				for line in followers:
 					pass
 				if(line):
@@ -46,9 +47,11 @@ class FollowerScraper():
 
 			fBucket = self.fetchFollowers(nextMiningIndex)
 
-			nextMiningIndex = fBucket['next_cursor']
+			#Check if fBucket is None
+			if(fBucket):
+				nextMiningIndex = fBucket['next_cursor']
 
-			self.storeFollowers(outfile, fBucket)
+				self.storeFollowers(outfile, fBucket)
 
 	def fetchFollowers(self, nextMiningIndex):
 		try:
