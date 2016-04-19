@@ -4,6 +4,17 @@ import tweetpony
 import time
 import timeit
 
+class JSONFetcher():
+	def __init__(self, fileName):
+		self.fileName = fileName + '.json'
+
+	def fetch(self):
+		print("fetching...")
+
+		with open(self.fileName, 'rb') as f:
+			for line in f:
+				yield json.loads(line)
+
 class FollowerScraper():
 
 	def __init__(self):
@@ -19,15 +30,15 @@ class FollowerScraper():
 		nextMiningIndex = -1
 		try:
 			print("Searching for existing mining operation...")
-			with open(env.TWITTER_HANDLE + "Followers.json", 'rb') as followers:
-				print("Existing mining operation found.")
-				line = None
-				for line in followers:
-					pass
-				if(line):
-					nextMiningIndex = line['nextMiningIndex']
-				if(nextMiningIndex == 0):
-					sys.exit("Existing mining operation was already completed. Exiting...")
+			followers = JSONFetcher(env.TWITTER_HANDLE + "Followers")
+			print("Existing mining operation found.")
+			line = None
+			for line in followers.fetch():
+				pass
+			if(line):
+				nextMiningIndex = line['nextCursor']
+			if(nextMiningIndex == 0):
+				sys.exit("Existing mining operation was already completed. Exiting...")
 		except IOError as err:
 			print("No pre-existing mining operation found.")
 			print("Beginning new expedition...")
@@ -39,7 +50,10 @@ class FollowerScraper():
 
 	def beginMining(self, nextMiningIndex):
 
-		outfile = open(env.TWITTER_HANDLE + "Followers.json", 'wb')
+		if(nextMiningIndex != -1):
+			outfile = open(env.TWITTER_HANDLE + "Followers.json", 'ab')
+		else:
+			outfile = open(env.TWITTER_HANDLE + "Followers.json", 'ab')
 
 		while(nextMiningIndex != 0):
 			#HAMYChange
