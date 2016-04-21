@@ -14,20 +14,22 @@ Twitter Miner mines the followers and subsequent tweets of a given user.
 ### Environment Variables
 This project relies on environment variables to run. This is to help ensure you aren't publishing your API keys to a public repo. 
 
-An example environment.py file is included in the repo for your convenience. In order to use it, replace each string with its corresponding value. 
+An example environment variable file, `environmentExample.py`, is included in the repo for your convenience. In order to use it, replace each string with its corresponding value. 
 
- * TWITTER_HANDLE - Handle of the Twitter profile you are mining
- * TWITTER_CONSUMER_KEY - Get this from the Twitter app page. Credentials to allow your app to access the Twitter API.
- * TWITTER_CONSUMER_SECRET - Same as above. Keep this *secret*. Authenticates your app with the API.
- * TWITTER_ACCESS_TOKEN_KEY - Get this from your user profile. Credentials allowing you to access more functionality from the API.
- * TWITTER_ACCESS_TOKEN_SECRET - Same as above. Again, keep this *secret*. This authenticates your user token with the API.
+**Before Running:** You must create an `environment.py` file in order for the files to run. As mentioned above, you should use the same format as `environmentExample.py`.
 
- ### Initiate Mining
- To start the mining process:
+ * **TWITTER_HANDLE** - Handle of the Twitter profile you are mining
+ * **TWITTER_CONSUMER_KEY** - Get this from the Twitter app page. Credentials to allow your app to access the Twitter API.
+ * **TWITTER_CONSUMER_SECRET** - Same as above. Keep this *secret*. Authenticates your app with the API.
+ * **TWITTER_ACCESS_TOKEN_KEY** - Get this from your user profile. Credentials allowing you to access more functionality from the API.
+ * **TWITTER_ACCESS_TOKEN_SECRET** - Same as above. Again, keep this *secret*. This authenticates your user token with the API.
 
- #### Mine Followers
+### Initiate Mining
+To start the mining process:
 
- `python followerScraper.py`
+#### Mine Followers
+
+`python followerScraper.py`
 
 This will begin grabbing all the followers from the `TWITTER_HANDLE` provided in environment.py. 
 
