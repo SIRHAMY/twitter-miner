@@ -128,7 +128,6 @@ class FeedScraper():
 
 	def storeFeed(self, twitterID, userFeed, srcPageID):
 		print("Inserting feed...")
-		print(userFeed)
 
 		try:
 			if(userFeed[0] is not None):
