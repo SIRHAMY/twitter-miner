@@ -30,6 +30,7 @@ class FollowerScraper():
 		nextMiningIndex = -1
 		try:
 			print("Searching for existing mining operation...")
+			testFile = open(JSONFetcher(env.TWITTER_HANDLE + "Followers.json"))
 			followers = JSONFetcher(env.TWITTER_HANDLE + "Followers")
 			print("Existing mining operation found.")
 			line = None
