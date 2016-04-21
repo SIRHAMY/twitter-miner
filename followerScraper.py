@@ -1,8 +1,9 @@
 import environment as env
 import json
-import tweetpony
+import sys
 import time
 import timeit
+import tweetpony
 
 class JSONFetcher():
 	def __init__(self, fileName):
@@ -30,24 +31,31 @@ class FollowerScraper():
 		nextMiningIndex = -1
 		try:
 			print("Searching for existing mining operation...")
-			testFile = open(JSONFetcher(env.TWITTER_HANDLE + "Followers.json"))
+			testFile = open(env.TWITTER_HANDLE + "Followers.json", 'rb')
 			followers = JSONFetcher(env.TWITTER_HANDLE + "Followers")
 			print("Existing mining operation found.")
 			line = None
-			for line in followers.fetch():
+			for record in followers.fetch():
+				line = record
 				pass
+
+			#print("Line: " + line['nextCursor'])
 			if(line):
 				nextMiningIndex = line['nextCursor']
-			if(nextMiningIndex == 0):
+
+			print ("HAMY: nextMiningIndex = " + str(nextMiningIndex))
+
+			if( str(nextMiningIndex) == str(0) ):
 				sys.exit("Existing mining operation was already completed. Exiting...")
 		except IOError as err:
 			print("No pre-existing mining operation found.")
 			print("Beginning new expedition...")
+			self.beginMining(nextMiningIndex)
 		except Exception as err:
 			print("ERROR: Couldn't open file")
 			print(str(err))
-
-		self.beginMining(nextMiningIndex)
+		else:
+			self.beginMining(nextMiningIndex)
 
 	def beginMining(self, nextMiningIndex):
 
