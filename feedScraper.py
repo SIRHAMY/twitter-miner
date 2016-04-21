@@ -1,7 +1,7 @@
-from bson.objectid import ObjectId
 import environment as env 
-from pymongo import MongoClient
+import json
 import time
+import timeit
 import tweetpony
 
 class FeedScraper():
@@ -15,20 +15,12 @@ class FeedScraper():
 		user = self.twitAPI.user
 		print ("Hello " + user.screen_name)
 
-		#Connect to Mongo
-		try:
-			self.mongo = MongoClient()
-			self.db = self.mongo[env.TWITTER_HANDLE]
-
-			self.mongoUserIDs = self.db.followers
-			self.mongoUserFeeds = self.db.feeds 
-		except Exception as e:
-			print("Error connecting to DB")
-			print str(e)
-			return
-
 	#Perform ze mining
 	def mine(self):
+
+		try:
+			print("Searching for raw followers...")
+			followers = 
 
 		if( ( self.mongoUserIDs.count() == 0 ) ):
 			print("ABORTED OPERATION: Couldn't locate UserID list")
