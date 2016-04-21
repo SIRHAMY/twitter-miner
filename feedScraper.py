@@ -27,8 +27,8 @@ class FeedScraper():
 		print ("Hello " + user.screen_name)
 
 		self.stats = {
-			'tweetsProcessed' = 0,
-			'feedsProcessed' = 0,
+			'tweetsProcessed': 0,
+			'feedsProcessed': 0,
 		}
 
 	#Perform ze mining
@@ -98,6 +98,9 @@ class FeedScraper():
 								existingOperation = False
 						else:
 							newFeed = self.mineFeed(follower, record['nextCursor'])
+							self.stats['feedsProcessed'] += 1
+							if(self.stats['feedsProcessed'] % 1000 == 0):
+								print("Feeds processed: " + str(self.stats['feedsProcessed']))
 		except Exception as err:
 			print("ERROR: Mining disaster")
 			print(str(err))
@@ -128,15 +131,11 @@ class FeedScraper():
 		print(userFeed)
 
 		try:
-			print("HAMY: userfeed[0]")
-			print userFeed[0]
-			print("HAMY: userfeed[1]")
-			print userFeed[1]
-
 			if(userFeed[0] is not None):
 				tweetList = []
 				for tweet in userFeed:
 					tweetList.append(tweet['text'])
+					self.stats['tweetsProcessed'] += 1
 
 				toWrite = {"twitterID": twitterID, "nextCursor": srcPageID, 
 							"feed": tweetList}
@@ -157,8 +156,8 @@ class FeedScraper():
 			print("Successfully inserted: " + str(userFeed[0]['id']) )
 
 	def printStats(self):
-		print( "Tweets processed: " + str(stats.tweetsProcessed) )
-		print( "Feeds Processed: " + str(stats.feedsProcessed) )
+		print( "Tweets processed: " + str(self.stats['tweetsProcessed']) )
+		print( "Feeds Processed: " + str(self.stats['feedsProcessed']) )
 
 
 
