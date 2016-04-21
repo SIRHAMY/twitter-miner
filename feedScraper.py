@@ -37,6 +37,7 @@ class FeedScraper():
 		#Ensure followers file exists
 		try:
 			print("Searching for raw followers...")
+			testFile = open(env.TWITTER_HANDLE + "Followers.json", "rb")
 			self.followers = JSONFetcher(env.TWITTER_HANDLE + "Followers")
 			print("Raw followers found.")
 		except IOError as err:
