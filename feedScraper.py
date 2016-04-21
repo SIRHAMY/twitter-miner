@@ -120,7 +120,7 @@ class FeedScraper():
 				print("Mining Suspended: Reached Twitter rate limit")
 				print("Waiting 3 minutes then retrying...")
 				time.sleep(180)
-				self.fetchFeed( twitterID, srcPageID)
+				self.mineFeed( twitterID, srcPageID)
 			else:
 				print("ERROR: Something broke when fetching the feed")
 				print str(err)
