@@ -32,6 +32,7 @@ class FollowerScraper():
 		try:
 			print("Searching for existing mining operation...")
 			testFile = open(env.TWITTER_HANDLE + "Followers.json", 'rb')
+			testFile.close()
 			followers = JSONFetcher(env.TWITTER_HANDLE + "Followers")
 			print("Existing mining operation found.")
 			line = None
@@ -115,8 +116,6 @@ if __name__ == "__main__":
 
 	scraper = FollowerScraper()
 	scraper.mine()
-
-	writer = open(env.TWITTER_HANDLE + "Followers.json", 'wb')
 
 	print("Operation finished")
 
