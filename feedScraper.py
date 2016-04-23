@@ -1,5 +1,6 @@
 import environment as env 
 import json
+import sys
 import time
 import timeit
 import tweetpony
@@ -134,7 +135,7 @@ class FeedScraper():
 			if(userFeed[0] is not None):
 				tweetList = []
 				for tweet in userFeed:
-					tweetList.append(tweet['text'])
+					tweetList.append( [tweet['text'], tweet['id_str']] )
 					self.stats['tweetsProcessed'] += 1
 
 				toWrite = {"twitterID": twitterID, "nextCursor": srcPageID, 
